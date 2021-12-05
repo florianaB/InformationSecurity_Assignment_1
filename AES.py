@@ -36,36 +36,43 @@ inverseSBox = (
     0x17, 0x2B, 0x04, 0x7E, 0xBA, 0x77, 0xD6, 0x26, 0xE1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0C, 0x7D,
 )
 
+
 # definimi i metodave per implementim te subBytes procesit
 def SubBytes(s):
     for i in range(4):
         for j in range(4):
             s[i][j] = sBox[s[i][j]]
 
+
 def InverseSubBytes(s):
     for i in range(4):
         for j in range(4):
             s[i][j] = inverseSBox[s[i][j]]
+
 
 def ShiftRows(s):
     s[0][1], s[1][1], s[2][1], s[3][1] = s[1][1], s[2][1], s[3][1], s[0][1]
     s[0][2], s[1][2], s[2][2], s[3][2] = s[2][2], s[3][2], s[0][2], s[1][2]
     s[0][3], s[1][3], s[2][3], s[3][3] = s[3][3], s[0][3], s[1][3], s[2][3]
 
+
 def InverseShiftRows(s):
     s[0][1], s[1][1], s[2][1], s[3][1] = s[3][1], s[0][1], s[1][1], s[2][1]
     s[0][2], s[1][2], s[2][2], s[3][2] = s[2][2], s[3][2], s[0][2], s[1][2]
     s[0][3], s[1][3], s[2][3], s[3][3] = s[1][3], s[2][3], s[3][3], s[0][3]
+
 
 def AddRoundKey(s, k):
     for i in range(4):
         for j in range(4):
             s[i][j] ^= k[i][j]
 
+
 #if  (a & 0x80)
 #is true do: (((a << 1) ^ 0x1B) & 0xFF)
 #is false do: (a << 1)
 xTime = lambda a: (((a << 1) ^ 0x1B) & 0xFF) if (a & 0x80) else (a << 1)
+
 
 def MixSingleColumn(a):
     # see Sec 4.1.2 in The Design of Rijndael
@@ -76,9 +83,11 @@ def MixSingleColumn(a):
     a[2] ^= t ^ xTime(a[2] ^ a[3])
     a[3] ^= t ^ xTime(a[3] ^ u)
 
+
 def MixColumns(s):
     for i in range(4):
         MixSingleColumn(s[i])
+
 
 def InverseMixColumns(s):
     # see Sec 4.1.3 in The Design of Rijndael
@@ -92,6 +101,7 @@ def InverseMixColumns(s):
 
     MixColumns(s)
 
+
 rCon = (
     0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40,
     0x80, 0x1B, 0x36, 0x6C, 0xD8, 0xAB, 0x4D, 0x9A,
@@ -99,17 +109,21 @@ rCon = (
     0xD4, 0xB3, 0x7D, 0xFA, 0xEF, 0xC5, 0x91, 0x39,
 )
 
+
 def ConvertToMatrix(text):
     """ Converts a 16-byte array into a 4x4 matrix.  """
     return [list(text[i:i+4]) for i in range(0, len(text), 4)]
+
 
 def ConvertToBytes(matrix):
     """ Converts a 4x4 matrix into a 16-byte array.  """
     return bytes(sum(matrix, []))
 
+
 def XORBytes(a, b):
     """ Returns a new byte array with the elements xor'ed. """
     return bytes(i^j for i, j in zip(a, b))
+
 
 def IncrementBytes(a):
     """ Returns a new byte array with the value increment by 1 """
@@ -122,6 +136,7 @@ def IncrementBytes(a):
             break
     return bytes(out)
 
+
 def pad(plaintext):
     """
     Pads the given plaintext with PKCS#7 padding to a multiple of 16 bytes.
@@ -131,6 +146,7 @@ def pad(plaintext):
     padding_len = 16 - (len(plaintext) % 16)
     padding = bytes([padding_len] * padding_len)
     return plaintext + padding
+
 
 def Unpad(plaintext):
     """
@@ -143,15 +159,18 @@ def Unpad(plaintext):
     assert all(p == padding_len for p in padding)
     return message
 
+
 def SplitBlocks(message, block_size=16, require_padding=True):
         assert len(message) % block_size == 0 or not require_padding
         return [message[i:i+16] for i in range(0, len(message), block_size)]
+
 
 class AES:
     """
     Class for AES-128 encryption with CBC mode.
     """
     rounds_by_key_size = {16: 10, 24: 12, 32: 14}
+
     def __init__(self, master_key):
         """
         Initializes the object with a given key.
