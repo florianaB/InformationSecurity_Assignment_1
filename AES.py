@@ -197,7 +197,7 @@ class AES:
                 # Circular shift.
                 word.append(word.pop(0))
                 # Map to S-BOX.
-                word = [sBox[b] for b in word]
+                word = [sBox[int(b)] for b in word]
                 # XOR with first byte of R-CON, since the others bytes of R-CON are 0.
                 word[0] ^= rCon[i]
                 i += 1
